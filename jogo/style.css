@@ -1,0 +1,138 @@
+#hook {
+    position: relative;
+    top: 100%;
+    height: 50%;
+    width: 20%;
+    left: 15%;
+    background-image: url(./hook.png);
+    background-size: 100% 100%;
+    
+}
+#rope{
+    position: relative;
+    width: 10%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: rgb(0, 0, 0);
+}
+
+.window {
+    position: relative;
+    display: block;
+    top: 5vh;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1200px;
+    background-image: url(./bg.png);
+    background-size: cover;
+}
+
+.fundo {
+    width: 100%;
+    padding-top: 56.25%;
+    text-align: center;
+}
+
+.painel {
+    margin-top:5vh;
+    position: relative;
+    display: block;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    background-color: yellow;
+
+}
+
+#boat {
+    position: absolute;
+    top: 5.5%;
+    width: 15%;
+    height: 15%;
+    text-align: center;
+    background-image: url(./boatfishing.png);
+    background-size: 100% 100%;
+}
+
+.peixe {
+    position: absolute;
+    width: 7.5%;
+    height: 7%;
+}
+#red{
+    display: flex;
+    top: 72%;
+    justify-content: flex-end;
+    align-items: center;
+    background-image: url(./rdfish.png);
+    background-size: 100% 100%;
+}
+#blue{
+    display: flex;
+    top: 65%;
+    justify-content: flex-end;
+    align-items: center;
+    background-image: url(./blfish.png);
+    background-size: 100% 100%;
+}
+#purple{
+    display: flex;
+    top: 37%;
+    justify-content: flex-end;
+    align-items: center;
+    background-image: url(./prplfish.png);
+    background-size: 100% 100%;
+}
+#green{
+    display: flex;
+    top: 76%;
+    justify-content: flex-end;
+    align-items: center;
+    background-image: url(./grnfish.png);
+    background-size: 100% 100%;
+}
+#white{
+    display: flex;
+    top: 51%;
+    justify-content: flex-end;
+    align-items: center;
+    background-image: url(./whtfish.png);
+    background-size: 100% 100%;
+    
+}
+#orange{
+    display: flex;
+    top: 45%;
+    justify-content: flex-end;
+    align-items: center;
+    background-image: url(./orngfish.png);
+    background-size: 100% 100%;
+}
+#yellow{
+    display: flex;
+    top: 30%;
+    justify-content: flex-end;
+    align-items: center;
+    background-image: url(./ylwfish.png);
+    background-size: 100% 100%;
+}
+#black{
+    display: flex;
+    top: 60%;
+    justify-content: flex-end;
+    align-items: center;
+    background-image: url(./blckfish.png);
+    background-size: 100% 100%;
+}
+#mensagem{
+    display: none;
+}
+#botoes, #mensagem{
+    height: 5%;
+    align-items: center;
+    justify-content: center;
+}
+#botoes{
+    display: flex;
+}

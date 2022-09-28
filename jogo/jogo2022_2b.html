@@ -1,0 +1,671 @@
+<!DOCTYPE>
+<html lang="pt-br">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+	<div class="window">
+		<div class="fundo" id="fundo">
+
+			<div id="boat">
+				<div id="hook">
+					<div id="rope"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="painel">
+
+		<hr>
+		<div id="botoes">
+			<button type="button" id="MoveBLeft">Esquerda</button>
+			<button type="button" id="MoveBRight">Direita</button>
+			<button type="button" id="DropHook">Pescar</button>
+		</div>
+		<div id="mensagem" class="hidden">AGUARDE O ANZOL VOLTAR PARA TENTAR DE NOVO.</div>
+		<div id="timer"></div>
+		<div>Score: 0</div>
+		<hr>
+
+	</div>
+
+	<script>
+		//TIMER
+		const timer = document.querySelector("#timer");
+		let timeSecond = 300;
+		displayTime(timeSecond);
+		function displayTime(time) {
+			const min = Math.floor(time / 60);
+			const sec = Math.floor(time % 60);
+			timer.innerHTML = `${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`
+		}
+		const countDown = setInterval(() => {
+			timeSecond--;
+			displayTime(timeSecond);
+			if (timeSecond <= 0 || timeSecond < 1) {
+				endTime();
+				clearInterval(countDown);
+			}
+		}, 1000)
+		function endTime() {
+			timer.innerHTML = "TIME OUT"
+		}
+		//Make Boat move
+		document.getElementById("MoveBRight").onmousedown = () => { move('right') };
+		document.getElementById("MoveBRight").ontouchstart = () => { move('right') };
+		document.getElementById("MoveBRight").onmouseup = () => { stop() };
+		document.getElementById("MoveBRight").ontouchend = () => { stop() };
+		document.getElementById("MoveBLeft").onmousedown = () => { move('left') };
+		document.getElementById("MoveBLeft").ontouchstart = () => { move('left') };
+		document.getElementById("MoveBLeft").onmouseup = () => { stop() };
+		document.getElementById("MoveBLeft").ontouchend = () => { stop() };
+		function move(direction) {
+			switch (direction) {
+				case "right":
+					movement = setInterval("movedireita()", 15);
+					break;
+				case "left":
+					movement = setInterval("moveesquerda()", 15);
+					break;
+			}
+		}
+		function stop() {
+			clearInterval(movement);
+		}
+		function movedireita() {
+			let boatLeft = parseInt(getComputedStyle(boat).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let boatWidth = parseInt(getComputedStyle(boat).width);
+			if ((boatLeft + 5) > (fundoWidth - boatWidth)) {
+				boat.style.left = fundoWidth - boatWidth;
+			} else {
+				boat.style.left = boatLeft + 5;
+			}
+		}
+		function moveesquerda() {
+			let boatLeft = parseInt(getComputedStyle(boat).left)
+			if ((boatLeft - 5) < 0) {
+				boat.style.left = 0
+			} else {
+				boat.style.left = boatLeft - 5;
+			}
+		}
+		//Hook Down
+		document.getElementById("DropHook").onclick = () => {
+			drop = setInterval("hookDown()", 15)
+		};
+		function hookDown() {
+			document.getElementById("botoes").style.display = "none";
+			document.getElementById("mensagem").style.display = "flex";
+			let hookHeight = parseInt(getComputedStyle(hook).height) + parseInt(getComputedStyle(boat).top);
+			let hookTop = parseInt(getComputedStyle(hook).top);
+			let fundoBottom = parseInt(getComputedStyle(fundo).padding);
+			let ropeHeight = parseInt(getComputedStyle(rope).height);
+			let ropeTop = parseInt(getComputedStyle(rope).top);
+			if ((hookTop + 5) > (fundoBottom - hookHeight)) {
+				hook.style.top = fundoBottom - hookHeight;
+			} else {
+				hook.style.top = hookTop + 5;
+				rope.style.top = ropeTop - 5;
+				rope.style.height = ropeHeight + 5;
+			}
+			if (hookTop == (fundoBottom - hookHeight)) {
+				fisguei = "return";
+
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+			};
+		}
+		function Recall() {
+			let hookTop = parseInt(getComputedStyle(hook).top);
+			let hookSpot = parseInt(getComputedStyle(boat).height);
+			let ropeHeight = parseInt(getComputedStyle(rope).height);
+			let ropeTop = parseInt(getComputedStyle(rope).top);
+			if ((hookTop - 5) <= (hookSpot)) {
+				hook.style.top = null;
+			} else {
+				hook.style.top = hookTop - 5;
+				rope.style.top = ropeTop + 5;
+				rope.style.height = ropeHeight - 5;
+
+			}
+			if (parseInt(hookTop) == hookSpot) {
+				rope.style.height = null;
+				rope.style.top = null;
+				fisguei = false;
+				document.getElementById("botoes").style.display = "flex";
+			document.getElementById("mensagem").style.display = "none";
+				clearInterval(call);
+			}
+		}
+		//Create fish
+		function fish(color) {
+			let fish = document.createElement("div");
+			let fishhit = document.createElement("div");
+			document.getElementById("fundo").appendChild(fish);
+			fish.classList.add("peixe");
+			fishposition(fish);
+			switch (color) {
+				case "red":
+					fish.setAttribute("id", "red");
+					redspd = Math.ceil(Math.random() * 3 + 3);
+					fsred = setInterval("redfswimr()", redspd);
+					break;
+				case "orange":
+					fish.setAttribute("id", "orange");
+					orangespd = Math.ceil(Math.random() * 3 + 14);
+					fsorange = setInterval("orangefswimr()", orangespd);
+					break;
+				case "yellow":
+					fish.setAttribute("id", "yellow");
+					yellowspd = Math.ceil(Math.random() * 3 + 18);
+					fsyellow = setInterval("yellowfswimr()", yellowspd);
+					break;
+				case "green":
+					fish.setAttribute("id", "green");
+					greenspd = Math.ceil(Math.random() * 3);
+					fsgreen = setInterval("greenfswimr()", greenspd);
+					break;
+				case "blue":
+					fish.setAttribute("id", "blue");
+					bluespd = Math.ceil(Math.random() * 3 + 8);
+					fsblue = setInterval("bluefswimr()", bluespd);
+					break;
+				case "purple":
+					fish.setAttribute("id", "purple");
+					purplespd = Math.ceil(Math.random() * 3 + 16);
+					fspurple = setInterval("purplefswimr()", purplespd);
+					break;
+				case "black":
+					fish.setAttribute("id", "black");
+					blackspd = Math.ceil(Math.random() * 3 + 10);
+					fsblack = setInterval("blackfswimr()", blackspd);
+					break;
+				case "white":
+					fish.setAttribute("id", "white");
+					whitespd = Math.ceil(Math.random() * 3 + 12);
+					fswhite = setInterval("whitefswimr()", whitespd);
+					break;
+			}
+		}
+		function fishposition(fish) {
+			fish.style.left = parseInt(Math.random() * 100) + "%"
+		}
+		function redfswimr() {
+			let redLeft = parseInt(getComputedStyle(red).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let redWidth = parseInt(getComputedStyle(red).width);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let redTop = parseInt(getComputedStyle(red).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+
+			if ((redLeft + 2) > (fundoWidth - redWidth)) {
+				red.style.left = fundoWidth - redWidth;
+			} else {
+				red.style.left = redLeft + 2;
+			}
+			if ((((redLeft + redWidth) > hookx) && ((redLeft + redWidth) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((redTop > hooky)) && (redTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsred);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("red").remove();
+				let redredo = setTimeout("fish('red')", 10000);
+			} else {
+				if (redLeft == fundoWidth - redWidth) {
+					document.getElementById("red").style.transform = "scaleX(-1)";
+					clearInterval(fsred);
+					fsred = setInterval("redfswiml()", redspd);
+				}
+			}
+		}
+		function redfswiml() {
+			let redLeft = parseInt(getComputedStyle(red).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let redWidth = parseInt(getComputedStyle(red).width);
+			let fundoLeft = parseInt(getComputedStyle(fundo).left);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let redTop = parseInt(getComputedStyle(red).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+			if ((redLeft - 2) < 0) {
+				red.style.left = 0
+			} else {
+				red.style.left = redLeft - 2;
+			}
+			if (((redLeft > hookx) && ((redLeft) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((redTop > hooky)) && (redTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsred);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("red").remove();
+				let redredo = setTimeout("fish('red')", 10000);
+			} else {
+				if (redLeft == 0) {
+					document.getElementById("red").style.transform = "scaleX(1)";
+					clearInterval(fsred);
+					fsred = setInterval("redfswimr()", redspd);
+				}
+			}
+		}
+		function bluefswimr() {
+			let blueLeft = parseInt(getComputedStyle(blue).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let blueWidth = parseInt(getComputedStyle(blue).width);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let blueTop = parseInt(getComputedStyle(blue).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+
+			if ((blueLeft + 2) > (fundoWidth - blueWidth)) {
+				blue.style.left = fundoWidth - blueWidth;
+			} else {
+				blue.style.left = blueLeft + 2;
+			}
+			if ((((blueLeft + blueWidth) > hookx) && ((blueLeft + blueWidth) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((blueTop > hooky)) && (blueTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsblue);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("blue").remove();
+				let bluredo = setTimeout("fish('blue')", 10000);
+			} else {
+				if (blueLeft == fundoWidth - blueWidth) {
+					document.getElementById("blue").style.transform = "scaleX(-1)"
+					clearInterval(fsblue);
+					fsblue = setInterval("bluefswiml()", bluespd);
+				}
+			}
+		}
+		function bluefswiml() {
+			let blueLeft = parseInt(getComputedStyle(blue).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let blueWidth = parseInt(getComputedStyle(blue).width);
+			let fundoLeft = parseInt(getComputedStyle(fundo).left);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let blueTop = parseInt(getComputedStyle(blue).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+			if ((blueLeft - 2) < 0) {
+				blue.style.left = 0
+			} else {
+				blue.style.left = blueLeft - 2;
+			}
+			if (((blueLeft > hookx) && ((blueLeft) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((blueTop > hooky)) && (blueTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsblue);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("blue").remove();
+				let blueredo = setTimeout("fish('blue')", 10000);
+			} else {
+				if (blueLeft == 0) {
+					document.getElementById("blue").style.transform = "scaleX(1)";
+					clearInterval(fsblue);
+					fsblue = setInterval("bluefswimr()", bluespd);
+				}
+			}
+		}
+		function purplefswimr() {
+			let purpleLeft = parseInt(getComputedStyle(purple).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let purpleWidth = parseInt(getComputedStyle(purple).width);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let purpleTop = parseInt(getComputedStyle(purple).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+
+			if ((purpleLeft + 2) > (fundoWidth - purpleWidth)) {
+				purple.style.left = fundoWidth - purpleWidth;
+			} else {
+				purple.style.left = purpleLeft + 2;
+			}
+			if ((((purpleLeft + purpleWidth) > hookx) && ((purpleLeft + purpleWidth) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((purpleTop > hooky)) && (purpleTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fspurple);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("purple").remove();
+				let purpleredo = setTimeout("fish('purple')", 10000);
+			} else {
+				if (purpleLeft == fundoWidth - purpleWidth) {
+					document.getElementById("purple").style.transform = "scaleX(-1)"
+					clearInterval(fspurple);
+					fspurple = setInterval("purplefswiml()", purplespd);
+				}
+			}
+		}
+		function purplefswiml() {
+			let purpleLeft = parseInt(getComputedStyle(purple).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let purpleWidth = parseInt(getComputedStyle(purple).width);
+			let fundoLeft = parseInt(getComputedStyle(fundo).left);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let purpleTop = parseInt(getComputedStyle(purple).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+			if ((purpleLeft - 2) < 0) {
+				purple.style.left = 0
+			} else {
+				purple.style.left = purpleLeft - 2;
+			}
+			if (((purpleLeft > hookx) && ((purpleLeft) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((purpleTop > hooky)) && (purpleTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fspurple);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("purple").remove();
+				let purpleredo = setTimeout("fish('purple')", 10000);
+			} else {
+				if (purpleLeft == 0) {
+					document.getElementById("purple").style.transform = "scaleX(1)";
+					clearInterval(fspurple);
+					fspurple = setInterval("purplefswimr()", purplespd);
+				}
+			}
+		}
+		function orangefswimr() {
+			let orangeLeft = parseInt(getComputedStyle(orange).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let orangeWidth = parseInt(getComputedStyle(orange).width);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let orangeTop = parseInt(getComputedStyle(orange).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+
+			if ((orangeLeft + 2) > (fundoWidth - orangeWidth)) {
+				orange.style.left = fundoWidth - orangeWidth;
+			} else {
+				orange.style.left = orangeLeft + 2;
+			}
+			if ((((orangeLeft + orangeWidth) > hookx) && ((orangeLeft + orangeWidth) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((orangeTop > hooky)) && (orangeTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsorange);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("orange").remove();
+				let orangeredo = setTimeout("fish('orange')", 10000);
+			} else {
+				if (orangeLeft == fundoWidth - orangeWidth) {
+					document.getElementById("orange").style.transform = "scaleX(-1)"
+					clearInterval(fsorange);
+					fsorange = setInterval("orangefswiml()", orangespd);
+				}
+			}
+		}
+		function orangefswiml() {
+			let orangeLeft = parseInt(getComputedStyle(orange).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let orangeWidth = parseInt(getComputedStyle(orange).width);
+			let fundoLeft = parseInt(getComputedStyle(fundo).left);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let orangeTop = parseInt(getComputedStyle(orange).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+			if ((orangeLeft - 2) < 0) {
+				orange.style.left = 0
+			} else {
+				orange.style.left = orangeLeft - 2;
+			}
+			if (((orangeLeft > hookx) && ((orangeLeft) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((orangeTop > hooky)) && (orangeTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsorange);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("orange").remove();
+				let orangeredo = setTimeout("fish('orange')", 10000);
+			} else {
+				if (orangeLeft == 0) {
+					document.getElementById("orange").style.transform = "scaleX(1)";
+					clearInterval(fsorange);
+					fsorange = setInterval("orangefswimr()", orangespd);
+				}
+			}
+		}
+		function yellowfswimr() {
+			let yellowLeft = parseInt(getComputedStyle(yellow).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let yellowWidth = parseInt(getComputedStyle(yellow).width);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let yellowTop = parseInt(getComputedStyle(yellow).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+
+			if ((yellowLeft + 2) > (fundoWidth - yellowWidth)) {
+				yellow.style.left = fundoWidth - yellowWidth;
+			} else {
+				yellow.style.left = yellowLeft + 2;
+			}
+			if ((((yellowLeft + yellowWidth) > hookx) && ((yellowLeft + yellowWidth) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((yellowTop > hooky)) && (yellowTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsyellow);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("yellow").remove();
+				let yellowredo = setTimeout("fish('yellow')", 10000);
+			} else {
+				if (yellowLeft == fundoWidth - yellowWidth) {
+					document.getElementById("yellow").style.transform = "scaleX(-1)"
+					clearInterval(fsyellow);
+					fsyellow = setInterval("yellowfswiml()", yellowspd);
+				}
+			}
+		}
+		function yellowfswiml() {
+			let yellowLeft = parseInt(getComputedStyle(yellow).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let yellowWidth = parseInt(getComputedStyle(yellow).width);
+			let fundoLeft = parseInt(getComputedStyle(fundo).left);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let yellowTop = parseInt(getComputedStyle(yellow).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+			if ((yellowLeft - 2) < 0) {
+				yellow.style.left = 0
+			} else {
+				yellow.style.left = yellowLeft - 2;
+			}
+			if (((yellowLeft > hookx) && ((yellowLeft) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((yellowTop > hooky)) && (yellowTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsyellow);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("yellow").remove();
+				let yellowredo = setTimeout("fish('yellow')", 10000);
+			} else {
+				if (yellowLeft == 0) {
+					document.getElementById("yellow").style.transform = "scaleX(1)";
+					clearInterval(fsyellow);
+					fsyellow = setInterval("yellowfswimr()", yellowspd);
+				}
+			}
+		}
+		function greenfswimr() {
+			let greenLeft = parseInt(getComputedStyle(green).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let greenWidth = parseInt(getComputedStyle(green).width);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let greenTop = parseInt(getComputedStyle(green).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+
+			if ((greenLeft + 2) > (fundoWidth - greenWidth)) {
+				green.style.left = fundoWidth - greenWidth;
+			} else {
+				green.style.left = greenLeft + 2;
+			}
+			if ((((greenLeft + greenWidth) > hookx) && ((greenLeft + greenWidth) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((greenTop > hooky)) && (greenTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsgreen);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("green").remove();
+				let greenredo = setTimeout("fish('green')", 10000);
+			} else {
+				if (greenLeft == fundoWidth - greenWidth) {
+					document.getElementById("green").style.transform = "scaleX(-1)"
+					clearInterval(fsgreen);
+					fsgreen = setInterval("greenfswiml()", greenspd);
+				}
+			}
+		}
+		function greenfswiml() {
+			let greenLeft = parseInt(getComputedStyle(green).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let greenWidth = parseInt(getComputedStyle(green).width);
+			let fundoLeft = parseInt(getComputedStyle(fundo).left);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let greenTop = parseInt(getComputedStyle(green).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+			if ((greenLeft - 2) < 0) {
+				green.style.left = 0
+			} else {
+				green.style.left = greenLeft - 2;
+			}
+			if (((greenLeft > hookx) && ((greenLeft) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((greenTop > hooky)) && (greenTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsgreen);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("green").remove();
+				let greenredo = setTimeout("fish('green')", 10000);
+			} else {
+				if (greenLeft == 0) {
+					document.getElementById("green").style.transform = "scaleX(1)";
+					clearInterval(fsgreen);
+					fsgreen = setInterval("greenfswimr()", greenspd);
+				}
+			}
+		}
+		function blackfswimr() {
+			let blackLeft = parseInt(getComputedStyle(black).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let blackWidth = parseInt(getComputedStyle(black).width);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let blackTop = parseInt(getComputedStyle(black).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+
+			if ((blackLeft + 2) > (fundoWidth - blackWidth)) {
+				black.style.left = fundoWidth - blackWidth;
+			} else {
+				black.style.left = blackLeft + 2;
+			}
+			if ((((blackLeft + blackWidth) > hookx) && ((blackLeft + blackWidth) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((blackTop > hooky)) && (blackTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsblack);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("black").remove();
+				let blackredo = setTimeout("fish('black')", 10000);
+			} else {
+				if (blackLeft == fundoWidth - blackWidth) {
+					document.getElementById("black").style.transform = "scaleX(-1)"
+					clearInterval(fsblack);
+					fsblack = setInterval("blackfswiml()", blackspd);
+				}
+			}
+		}
+		function blackfswiml() {
+			let blackLeft = parseInt(getComputedStyle(black).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let blackWidth = parseInt(getComputedStyle(black).width);
+			let fundoLeft = parseInt(getComputedStyle(fundo).left);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let blackTop = parseInt(getComputedStyle(black).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+			if ((blackLeft - 2) < 0) {
+				black.style.left = 0
+			} else {
+				black.style.left = blackLeft - 2;
+			}
+			if (((blackLeft > hookx) && ((blackLeft) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((blackTop > hooky)) && (blackTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fsblack);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("black").remove();
+				let blackredo = setTimeout("fish('black')", 10000);
+			} else {
+				if (blackLeft == 0) {
+					document.getElementById("black").style.transform = "scaleX(1)";
+					clearInterval(fsblack);
+					fsblack = setInterval("blackfswimr()", blackspd);
+				}
+			}
+		}
+		function whitefswimr() {
+			let whiteLeft = parseInt(getComputedStyle(white).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let whiteWidth = parseInt(getComputedStyle(white).width);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let whiteTop = parseInt(getComputedStyle(white).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+
+			if ((whiteLeft + 2) > (fundoWidth - whiteWidth)) {
+				white.style.left = fundoWidth - whiteWidth;
+			} else {
+				white.style.left = whiteLeft + 2;
+			}
+			if ((((whiteLeft + whiteWidth) > hookx) && ((whiteLeft + whiteWidth) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((whiteTop > hooky)) && (whiteTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fswhite);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("white").remove();
+				let whiteredo = setTimeout("fish('white')", 10000);
+			} else {
+				if (whiteLeft == fundoWidth - whiteWidth) {
+					document.getElementById("white").style.transform = "scaleX(-1)"
+					clearInterval(fswhite);
+					fswhite = setInterval("whitefswiml()", whitespd);
+				}
+			}
+		}
+		function whitefswiml() {
+			let whiteLeft = parseInt(getComputedStyle(white).left);
+			let fundoWidth = parseInt(getComputedStyle(fundo).width);
+			let whiteWidth = parseInt(getComputedStyle(white).width);
+			let fundoLeft = parseInt(getComputedStyle(fundo).left);
+			let hookx = parseInt(getComputedStyle(hook).left) + parseInt(getComputedStyle(boat).left);
+			let whiteTop = parseInt(getComputedStyle(white).top)
+			let hooky = parseInt(getComputedStyle(hook).top) + parseInt(getComputedStyle(boat).top)
+			if ((whiteLeft - 2) < 0) {
+				white.style.left = 0
+			} else {
+				white.style.left = whiteLeft - 2;
+			}
+			if (((whiteLeft > hookx) && ((whiteLeft) < (hookx + parseInt(getComputedStyle(hook).width)))) && ((whiteTop > hooky)) && (whiteTop < hooky + parseInt(getComputedStyle(hook).height)) && fisguei == false) {
+				fisguei = true;
+				clearInterval(fswhite);
+				clearInterval(drop);
+				call = setInterval("Recall()", 15)
+				document.getElementById("white").remove();
+				let whiteredo = setTimeout("fish('white')", 10000);
+			} else {
+				if (whiteLeft == 0) {
+					document.getElementById("white").style.transform = "scaleX(1)";
+					clearInterval(fswhite);
+					fswhite = setInterval("whitefswimr()", whitespd);
+				}
+			}
+		}
+		let fisguei = false;
+		let boatimg = setInterval(() => {
+			switch (fisguei) {
+				case true:
+					document.getElementById("boat").style.backgroundImage = "url(./boatfisguei.png)"
+					break;
+				case false:
+					document.getElementById("boat").style.backgroundImage = "url(./boatfishing.png)"
+					break;
+				case "return":
+					document.getElementById("boat").style.backgroundImage = "url(./boatmiss.png)"
+			}
+		}, 1);
+		fish("red");
+		fish("blue");
+		fish("purple");
+		fish("orange");
+		fish("yellow");
+		fish("green");
+		fish("white");
+		fish("black");
+	</script>
+</body>
+
+</html>
